@@ -13,7 +13,7 @@
 ```sh
 mkdir -p build && cd build/
 cmake ..
-make -j4
+make -j8
 ./examples/hello_world/hello_world 
 ```
 ### Windows (Visual Studio 2019) (x64)
@@ -22,7 +22,7 @@ make -j4
 ## How to use in your project
 Refer to [examples/hello_world/CMakeLists.txt](examples/hello_world/CMakeLists.txt)
 
-## How this repository was modified
+## How this repository was modified (2024/9 upadated)
 - Clone code and generate all projects
 	- Refer to: https://github.com/tensorflow/tflite-micro/blob/main/tensorflow/lite/micro/docs/new_platform_support.md
 ```sh
