@@ -22,20 +22,22 @@ make -j4
 ## How to use in your project
 Refer to [examples/hello_world/CMakeLists.txt](examples/hello_world/CMakeLists.txt)
 
-## How this repository was generated
+## How this repository was modified
 - Clone code and generate all projects
-	- It's actually no need to generate all projects, but just generating hello_world project didn't work to me
+	- Refer to: https://github.com/tensorflow/tflite-micro/blob/main/tensorflow/lite/micro/docs/new_platform_support.md
 ```sh
-git clone https://github.com/tensorflow/tensorflow.git
-cd tensorflow
-# git checkout 1e8f4666f2fbc1bdd4ce2797b218de0453cffc63
+git clone https://github.com/tensorflow/tflite-micro
+cd tflite-micro
 
-make -f tensorflow/lite/micro/tools/make/Makefile generate_projects
-# make -f tensorflow/lite/micro/tools/make/Makefile generate_hello_world_make_project
-
-ls tensorflow/lite/micro/tools/make/gen/linux_x86_64_default/prj/hello_world/tensorflow_lite.zip
+python3 tensorflow/lite/micro/tools/project_generation/create_tflm_tree.py \
+  -e hello_world \
+  -e micro_speech \
+  -e person_detection \
+  /tmp/tflm-tree
 ```
-
-- Add CMakeLists.txt files
-- Do some modifications (see commit log to find diff)
-
+- This will create a folder that looks like the following at the top-level:
+```
+examples  LICENSE  tensorflow  third_party
+```
+- Update `tensorflow` and `third_party` to source
+- Update `hello_world` example
