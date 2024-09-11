@@ -25,6 +25,7 @@ Refer to [examples/hello_world/CMakeLists.txt](examples/hello_world/CMakeLists.t
 ## How this repository was modified (2024/9 updated)
 - Clone code and generate all projects
 	- Refer to: https://github.com/tensorflow/tflite-micro/blob/main/tensorflow/lite/micro/docs/new_platform_support.md
+ 	- Need c++17 supported 
 ```sh
 git clone https://github.com/tensorflow/tflite-micro
 cd tflite-micro
