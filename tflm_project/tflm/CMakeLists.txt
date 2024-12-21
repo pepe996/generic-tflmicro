@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(BinName "hello_world")
+set(BinName "tflm")
 add_executable(${BinName} "")
 
 target_link_libraries(

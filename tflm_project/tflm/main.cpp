@@ -1,23 +1,7 @@
-/* Copyright 2023 The TensorFlow Authors. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
-
 #include <math.h>
 
 #include "tensorflow/lite/core/c/common.h"
-#include "hello_world_float_model_data.h"
-#include "hello_world_int8_model_data.h"
+#include "model.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_log.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
@@ -25,12 +9,46 @@ limitations under the License.
 #include "tensorflow/lite/micro/recording_micro_interpreter.h"
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
+#include <stdint.h>
+#include <time.h>
+#define INPUT_SIZE (240 * 320 * 3)
+#define OUTPUT_SIZE (4420 * 2)
 
 namespace {
-using HelloWorldOpResolver = tflite::MicroMutableOpResolver<1>;
+using HelloWorldOpResolver = tflite::MicroMutableOpResolver<30>;
 
 TfLiteStatus RegisterOps(HelloWorldOpResolver& op_resolver) {
+  TF_LITE_ENSURE_STATUS(op_resolver.AddReshape());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddTranspose());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddAdd());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddMul());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddMean());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddConv2D());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddExp());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddLog());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddTanh());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddSquaredDifference());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddRsqrt());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddSub());
   TF_LITE_ENSURE_STATUS(op_resolver.AddFullyConnected());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddConcatenation());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddQuantize());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddPad());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddTransposeConv());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddStridedSlice());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddCast());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddDequantize());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddCos());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddSin());
+
+  TF_LITE_ENSURE_STATUS(op_resolver.AddLogistic());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddMaxPool2D());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddResizeNearestNeighbor());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddDepthwiseConv2D());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddSoftmax());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddSlice());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddAveragePool2D());
+  TF_LITE_ENSURE_STATUS(op_resolver.AddBatchMatMul());
   return kTfLiteOk;
 }
 }  // namespace
@@ -49,7 +67,7 @@ TfLiteStatus ProfileMemoryAndLatency() {
   tflite::RecordingMicroAllocator* allocator(
       tflite::RecordingMicroAllocator::Create(tensor_arena, kTensorArenaSize));
   tflite::RecordingMicroInterpreter interpreter(
-      tflite::GetModel(g_hello_world_float_model_data), op_resolver, allocator,
+      tflite::GetModel(g_model), op_resolver, allocator,
       tflite::MicroResourceVariables::Create(allocator, kNumResourceVariables),
       &profiler);
 
@@ -68,7 +86,7 @@ TfLiteStatus ProfileMemoryAndLatency() {
 
 TfLiteStatus LoadFloatModelAndPerformInference() {
   const tflite::Model* model =
-      ::tflite::GetModel(g_hello_world_float_model_data);
+      ::tflite::GetModel(g_model);
   TFLITE_CHECK_EQ(model->version(), TFLITE_SCHEMA_VERSION);
 
   HelloWorldOpResolver op_resolver;
@@ -103,7 +121,7 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
   // Map the model into a usable data structure. This doesn't involve any
   // copying or parsing, it's a very lightweight operation.
   const tflite::Model* model =
-      ::tflite::GetModel(g_hello_world_int8_model_data);
+      ::tflite::GetModel(g_model);
   TFLITE_CHECK_EQ(model->version(), TFLITE_SCHEMA_VERSION);
 
   HelloWorldOpResolver op_resolver;
@@ -111,7 +129,7 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
 
   // Arena size just a round number. The exact arena usage can be determined
   // using the RecordingMicroInterpreter.
-  constexpr int kTensorArenaSize = 3000;
+  constexpr int kTensorArenaSize = 5000*1024;
   uint8_t tensor_arena[kTensorArenaSize];
 
   tflite::MicroInterpreter interpreter(model, op_resolver, tensor_arena,
@@ -119,41 +137,72 @@ TfLiteStatus LoadQuantModelAndPerformInference() {
 
   TF_LITE_ENSURE_STATUS(interpreter.AllocateTensors());
 
-  TfLiteTensor* input = interpreter.input(0);
-  TFLITE_CHECK_NE(input, nullptr);
+  int8_t input_data0[INPUT_SIZE];
+  //int64_t input_data1[1];
+  //input_data1[0]=1;
+  int8_t output_data[OUTPUT_SIZE];
+  for(int i=0;i<INPUT_SIZE;i++){
+    input_data0[i]=1;
+  }
+
+
+  TfLiteTensor* input0 = interpreter.input(0);
+  TFLITE_CHECK_NE(input0, nullptr);
+
+  // TfLiteTensor* input1 = interpreter.input(1);
+  // TFLITE_CHECK_NE(input1, nullptr);
 
   TfLiteTensor* output = interpreter.output(0);
   TFLITE_CHECK_NE(output, nullptr);
 
-  float output_scale = output->params.scale;
-  int output_zero_point = output->params.zero_point;
+  // float output_scale = output->params.scale;
+  // int output_zero_point = output->params.zero_point;
+
+  int8_t* inTensorData0 = tflite::GetTensorData<int8_t>(input0);
+  memcpy(inTensorData0, input_data0, input0->bytes);
+  // int64_t* inTensorData1 = tflite::GetTensorData<int64_t>(input1);
+  // memcpy(inTensorData1, input_data1, input1->bytes);
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
+  TF_LITE_ENSURE_STATUS(interpreter.Invoke());
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  printf("Execution time of one invoke: %f seconds\n", cpu_time_used);
+
+  // memcpy(&output_data[0], tflite::GetTensorData<int8_t>(output), output->bytes);
+  // printf("output = %d\n", output_data[0]);
+
+  printf("arena_used_bytes = %ld\n", interpreter.arena_used_bytes());
+  return kTfLiteOk;
+
 
   // Check if the predicted output is within a small range of the
   // expected output
-  float epsilon = 0.05;
+  //float epsilon = 0.05;
 
-  constexpr int kNumTestValues = 4;
-  float golden_inputs_float[kNumTestValues] = {0.77, 1.57, 2.3, 3.14};
+  // constexpr int kNumTestValues = 4;
+  //float golden_inputs_float[kNumTestValues] = {0.77, 1.57, 2.3, 3.14};
 
   // The int8 values are calculated using the following formula
   // (golden_inputs_float[i] / input->params.scale + input->params.scale)
-  int8_t golden_inputs_int8[kNumTestValues] = {-96, -63, -34, 0};
+  //int8_t golden_inputs_int8[kNumTestValues] = {-96, -63, -34, 0};
 
-  for (int i = 0; i < kNumTestValues; ++i) {
-    input->data.int8[0] = golden_inputs_int8[i];
-    TF_LITE_ENSURE_STATUS(interpreter.Invoke());
-    float y_pred = (output->data.int8[0] - output_zero_point) * output_scale;
-    TFLITE_CHECK_LE(abs(sin(golden_inputs_float[i]) - y_pred), epsilon);
-  }
+  // for (int i = 0; i < kNumTestValues; ++i) {
+  //   input->data.int8[0] = golden_inputs_int8[i];
+  //   TF_LITE_ENSURE_STATUS(interpreter.Invoke());
+  //   float y_pred = (output->data.int8[0] - output_zero_point) * output_scale;
+  //   TFLITE_CHECK_LE(abs(sin(golden_inputs_float[i]) - y_pred), epsilon);
+  // }
 
-  return kTfLiteOk;
+  //return kTfLiteOk;
 }
 
 int main(int argc, char* argv[]) {
-  tflite::InitializeTarget();
-  TF_LITE_ENSURE_STATUS(ProfileMemoryAndLatency());
-  TF_LITE_ENSURE_STATUS(LoadFloatModelAndPerformInference());
+  //tflite::InitializeTarget();
+  //TF_LITE_ENSURE_STATUS(ProfileMemoryAndLatency());
+  //TF_LITE_ENSURE_STATUS(LoadFloatModelAndPerformInference());
   TF_LITE_ENSURE_STATUS(LoadQuantModelAndPerformInference());
-  MicroPrintf("~~~ALL TESTS PASSED~~~\n");
+  MicroPrintf("~~~ALL TESTS PASSEDbvcxbvcxbvcx~~~\n");
   return kTfLiteOk;
 }

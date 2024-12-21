@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.0)
 
 project(tflmicro-test)
-
+set(CMAKE_C_COMPILER "/home/pepe996/nds64le-linux-glibc-v5d/bin/riscv64-linux-gcc")
+set(CMAKE_CXX_COMPILER "/home/pepe996/nds64le-linux-glibc-v5d/bin/riscv64-linux-g++")
+set(CXXFLAGS "-std=c++17 -O3 -mext-dsp -Wl,-T,/home/pepe996/generic-tflmicro/ldscript -static")
+set(CMAKE_CXX_FLAGS "${CXXFLAGS}")
 set(DIR_TFLMICRO "${CMAKE_CURRENT_LIST_DIR}/src")
 add_subdirectory(${DIR_TFLMICRO})
-add_subdirectory(examples/hello_world)
+add_subdirectory(tflm_project/tflm)
