@@ -1,3 +1,16 @@
+# Edge AI-based Face Detection and Robotic Arm Control System
+
+## Platform: Tinker V
+- [Tutorial](https://hackmd.io/YDss_ZjyRCqV4CLaoLkseg)
+
+## Model: [Ultraface](https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB)
+
+- Result demo
+
+![image](https://hackmd.io/_uploads/B1Ipft6R0.png)
+
+![image](https://hackmd.io/_uploads/rkuAMFpA0.png)
+
 # generic-tflmicro
 - This repository provides:
 	- cmake project to generate TensorFlow Lite for Microcontrollers ( TFLM ) as a library
