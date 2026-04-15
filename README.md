@@ -3,13 +3,13 @@
 
 ## Competition
 > Andes Awards 2024 — Application Track  
-- [Slides](https://docs.google.com/presentation/d/1jy3ECFNxDfVmHjAojg8dyEjT1ntfuXvriRUWY-4u-hQ/edit?usp=sharing)
+- [Final Slides](https://docs.google.com/presentation/d/1jy3ECFNxDfVmHjAojg8dyEjT1ntfuXvriRUWY-4u-hQ/edit?usp=sharing)
 
 ---
 
 ## Overview
 
-This project deploys a Pose Estimation Deep Neural Network (DNN) model on a RISC-V edge device (Tinker V). The system captures real-time images via camera or image file, runs on-device inference, and sends control signals to a robotic arm — achieving real-time Human-Computer Interaction (HCI) without relying on cloud computing.
+This project deploys a Face Detection Deep Neural Network (DNN) model on a RISC-V edge device (Tinker V). The system captures real-time images via camera or image file, runs on-device inference, and sends control signals to a robotic arm — achieving real-time Human-Computer Interaction (HCI) without relying on cloud computing.
 
 ---
 
@@ -26,7 +26,7 @@ This project deploys a Pose Estimation Deep Neural Network (DNN) model on a RISC
 | Control Interface | GPIO 20-pin (SPI / UART / I²C) |
 | Network Interface | RJ45 (wired Ethernet) |
 | OS | Linux (Yocto image) |
-| Robotic Arm | Taiwan IoT 6-DOF Robotic Arm (pending procurement) |
+| Robotic Arm | Taiwan IoT 6-DOF Robotic Arm |
 
 ---
 
@@ -50,7 +50,6 @@ PoseNet was originally planned but required ~5 minutes per inference on Tinker V
 > **Input**: 240×320×3 normalized image  
 > **Output**: 4420 bounding boxes + confidence scores (4420×4 offsets, 4420×2 scores)
 
-> **Note**: Strictly speaking, face detection does not fall under pose estimation. This is a hardware-constrained workaround; the team will continue searching for a more suitable lightweight pose estimation model.
 
 ---
 
@@ -236,11 +235,11 @@ ffmpeg -f rawvideo -pix_fmt yuyv422 -s 640x480 \
 | Metric | Result |
 |--------|--------|
 | Test dataset | WIDER FACE face detection dataset |
-| Inference time | ~27.88 seconds / frame |
+| Inference time | ~27.88 seconds / frame (1.5 seconds (~18× speedup) w/ -O3 and RVP)|
 | Model size | 372 KB (int8) |
 | Arena memory used | 1,289,256 bytes |
 | Bounding boxes output (group photo test) | 26 boxes detected |
-| SPI signal output | ✅ Verified (GPIO Pin P15_0) |
+| GPIO signal output | Verified (Pin P15_0) |
 
 ![image](https://hackmd.io/_uploads/B1Ipft6R0.png)
 
