@@ -82,7 +82,7 @@ Tinker V
 ---
 
 ## Setup & Build
-
+- [Tinker V tutorial](https://hackmd.io/@pepe996/SJQ0IZyaC)
 ### 1. Rebuild Yocto Image with Required Packages
 
 Edit `./meta-asus-renesas/conf/machine/rzfive-tinker-v.conf` and append the following to `CORE_IMAGE_EXTRA_INSTALL`:
