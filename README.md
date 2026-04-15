@@ -1,5 +1,9 @@
 # Edge AI-based Face Detection and Robotic Arm Control System
 
+## Competition: Andes Awards 2024
+
+- [Slides](https://docs.google.com/presentation/d/1jy3ECFNxDfVmHjAojg8dyEjT1ntfuXvriRUWY-4u-hQ/edit?usp=sharing)
+
 ## Platform: Tinker V
 - [Tutorial](https://hackmd.io/YDss_ZjyRCqV4CLaoLkseg)
 
